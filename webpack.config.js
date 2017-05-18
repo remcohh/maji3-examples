@@ -1,11 +1,11 @@
-const path = require('path');
-const webpack = require('webpack');
-const babel = require('./config/babel');
-const uglify = require('./config/uglify');
+const path = require("path");
+const webpack = require("webpack");
+const babel = require("./config/babel");
+const uglify = require("./config/uglify");
 
-const env = process.env.NODE_ENV || 'development';
-const isProd = env === 'production';
-const out = path.resolve(__dirname, 'dist');
+const env = process.env.NODE_ENV || "development";
+const isProd = env === "production";
+const out = path.resolve(__dirname, "dist");
 const exclusions = /(node_modules|bower_components)/;
 
 const ExtractText = require("extract-text-webpack-plugin");
@@ -17,16 +17,16 @@ const HTML = require("html-webpack-plugin");
 const Clean = require("clean-webpack-plugin");
 const plugins = [
   new HTML({
-    template: 'src/index.html',
+    template: "src/index.html",
     inject: false,
     minify: false
   }),
-  new Clean(['dist']),
+  new Clean(["dist"]),
   new webpack.optimize.CommonsChunkPlugin({
-    name: 'vendor'
+    name: "vendor"
   }),
   new webpack.DefinePlugin({
-    'process.env.NODE_ENV': JSON.stringify(env)
+    "process.env.NODE_ENV": JSON.stringify(env)
   }),
   new webpack.LoaderOptionsPlugin({
     options: {
@@ -42,7 +42,7 @@ const plugins = [
     }
   }),
   extractShellCss,
-  extractOtherCss,
+  extractOtherCss
 ];
 
 if (isProd) {
@@ -51,7 +51,7 @@ if (isProd) {
     new webpack.optimize.UglifyJsPlugin(uglify)
   );
 
-  babel.presets.push('babili')
+  babel.presets.push("babili");
 } else {
   plugins.push(
     // enable HMR globally
@@ -64,28 +64,28 @@ if (isProd) {
 
 module.exports = {
   entry: {
-    app: './src/index.js',
-    vendor: ['preact', 'preact-router'],
+    app: "./src/index.js",
+    vendor: ["preact", "preact-router"]
   },
   output: {
     path: out,
-    filename: '[name].[hash].js',
-    publicPath: './'
+    filename: "[name].[hash].js",
+    publicPath: "./"
   },
   module: {
     rules: [
       {
         test: /\.jsx?$/,
         exclude: exclusions,
-        loader: 'babel-loader',
+        loader: "babel-loader",
         options: babel
       },
       {
         test: /\.scss$/,
         loader: isProd
           ? extractOtherCss.extract({
-            use: "css-loader?modules!postcss-loader!sass-loader"
-          })
+              use: "css-loader?modules!postcss-loader!sass-loader"
+            })
           : "style-loader!css-loader?modules!postcss-loader!sass-loader",
         exclude: /shell.scss$/
       },
@@ -93,11 +93,10 @@ module.exports = {
         test: /shell.scss$/,
         loader: isProd
           ? extractShellCss.extract({
-            use: "css-loader!postcss-loader!sass-loader"
-          })
+              use: "css-loader!postcss-loader!sass-loader"
+            })
           : "style-loader!css-loader!postcss-loader!sass-loader"
       }
-
     ]
   },
   resolve: {
@@ -106,10 +105,10 @@ module.exports = {
       config: path.resolve(__dirname, "./config")
     }
   },
-  devtool: isProd ? 'source-map' : 'eval',
+  devtool: isProd ? "source-map" : "eval",
   plugins: plugins,
   devServer: {
-    publicPath: '/',
+    publicPath: "/",
     contentBase: out,
     port: process.env.PORT || 3000,
     historyApiFallback: true,
