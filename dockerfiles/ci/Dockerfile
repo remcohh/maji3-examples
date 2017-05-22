@@ -9,7 +9,17 @@ RUN apt-get update \
           zlib1g zlib1g-dev \
           libcurl4-openssl-dev \
           libxslt-dev libxml2-dev \
+          apt-transport-https \
   && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# install latest chrome
+RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
+  && echo "deb https://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+  && apt-get update \
+  && apt-get -y install google-chrome-unstable \
+  && rm /etc/apt/sources.list.d/google-chrome.list \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+ENV CHROME_BIN /usr/bin/google-chrome-unstable
 
 ARG JENKINS_UID=999
 RUN (id ${JENKINS_UID} && userdel $(id -un ${JENKINS_UID}) || true) && adduser --disabled-password --gecos "" --uid ${JENKINS_UID} --gid 1 jenkins
