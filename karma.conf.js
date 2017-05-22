@@ -19,6 +19,9 @@ module.exports = function(config) {
       stats: "errors-only"
     },
     reporters: ["mocha", "junit"],
+    junitReporter: {
+      outputDir: 'reports'
+    },
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,

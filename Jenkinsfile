@@ -23,6 +23,7 @@ pipeline {
     stage("Tests") {
       steps {
         sh "yarn test"
+        junit "reports/*.xml"
       }
     }
   }
