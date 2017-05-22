@@ -19,11 +19,14 @@ module.exports = function(config) {
       stats: "errors-only"
     },
     reporters: ["mocha", "junit"],
+    junitReporter: {
+      outputDir: 'reports'
+    },
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ["Chrome"],
+    browsers: ["ChromeHeadless"],
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: false,

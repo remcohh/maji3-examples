@@ -6,4 +6,5 @@ node_modules
 *.log
 dist
 .env
-TESTS*.xml
+reports/
+
