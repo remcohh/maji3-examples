@@ -17,3 +17,9 @@ You'll need Chrome v59.x or higher to run the tests headless. You might need ins
 1. Follow steps in [Setup](#setup).
 2. Run `yarn start` (or `npm start`)
 3. `open http://localhost:3000`
+
+### Code formatting
+
+Code is formatted by [Prettier](https://github.com/prettier/prettier).
+The provided [Setup](#setup) script will install a git commit hook that will format your code.
+Prettier can also be run manually using `yarn run prettier` or `yarn run prettier -- --write`.
