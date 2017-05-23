@@ -86,7 +86,18 @@ module.exports = {
           ? extractOtherCss.extract({
               use: "css-loader?modules!postcss-loader!sass-loader"
             })
-          : "style-loader!css-loader?modules!postcss-loader!sass-loader",
+          : [
+          { loader: "style-loader" },
+          {
+            loader: "css-loader",
+            options: {
+              modules: true,
+              localIdentName: '[path][name]__[local]--[hash:base64:5]'
+            }
+          },
+          { loader: "postcss-loader" },
+          { loader: "sass-loader" }
+        ],
         exclude: /shell.scss$/
       },
       {
