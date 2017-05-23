@@ -11,7 +11,7 @@
     "start": "webpack-dev-server",
     "test": "karma start --single-run",
     "watch": "karma start --watch",
-    "prettier": "prettier --write '{,!(node_modules)/**/}*.js'"
+    "prettier": "prettier '{,!(node_modules)/**/}*.js'"
   },
   "dependencies": {
     "preact": "^8.1.0",
