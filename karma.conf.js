@@ -20,7 +20,7 @@ module.exports = function(config) {
     },
     reporters: ["mocha", "junit"],
     junitReporter: {
-      outputDir: 'reports'
+      outputDir: "reports"
     },
     port: 9876,
     colors: true,
