@@ -38,7 +38,7 @@
     "babel-preset-stage-3": "^6.24.1",
     "chai": "^3.5.0",
     "chai-dom": "^1.4.3",
-    "chromedriver": "^2.30.1",
+    "chromedriver": "^2.31.0",
     "clean-webpack-plugin": "^0.1.16",
     "cordova": "^7.0.1",
     "css-loader": "^0.28.1",
