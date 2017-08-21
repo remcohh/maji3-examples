@@ -3,18 +3,32 @@ const webpack = require("webpack");
 const babel = require("./config/babel");
 const uglify = require("./config/uglify");
 
-const env = process.env.NODE_ENV || "development";
+const env = process.env.NODE_ENV || process.env.APP_ENV || "development";
 const isProd = env === "production";
 const out = path.resolve(__dirname, "dist");
-const exclusions = /(node_modules|bower_components)/;
+const exclusions = /node_modules/;
 
 const ExtractText = require("extract-text-webpack-plugin");
 const extractShellCss = new ExtractText("shell.[hash].css");
 const extractOtherCss = new ExtractText("styles.[hash].css");
 
+process.stderr.write(`Building with env = ${env}\n`);
+
+const getGitRevision = function() {
+  const GitRevPlugin = require("git-revision-webpack-plugin");
+  return new GitRevPlugin({
+    commithashCommand: "rev-parse --short HEAD 2> /dev/null || echo untracked"
+  }).commithash();
+};
+
+const getNpmVersion = function() {
+  return require("./package.json").version;
+};
+
 // plugin management
 const HTML = require("html-webpack-plugin");
 const Clean = require("clean-webpack-plugin");
+const SpriteLoaderPlugin = require("svg-sprite-loader/plugin");
 const plugins = [
   new HTML({
     template: "src/index.html",
@@ -26,23 +40,13 @@ const plugins = [
     name: "vendor"
   }),
   new webpack.DefinePlugin({
-    "process.env.NODE_ENV": JSON.stringify(env)
-  }),
-  new webpack.LoaderOptionsPlugin({
-    options: {
-      postcss: [
-        require("autoprefixer")({
-          browsers: [
-            "last 3 Chrome versions",
-            "last 3 iOS versions",
-            "last 3 Edge versions"
-          ]
-        })
-      ]
-    }
+    "process.env.NODE_ENV": JSON.stringify(env),
+    __BUILD_IDENTIFIER__: JSON.stringify(getGitRevision()),
+    __VERSION_NUMBER__: JSON.stringify(getNpmVersion())
   }),
   extractShellCss,
-  extractOtherCss
+  extractOtherCss,
+  new SpriteLoaderPlugin()
 ];
 
 if (isProd) {
@@ -50,21 +54,37 @@ if (isProd) {
     new webpack.LoaderOptionsPlugin({ minimize: true, debug: false }),
     new webpack.optimize.UglifyJsPlugin(uglify)
   );
-
-  babel.presets.push("babili");
 } else {
   plugins.push(
     // enable HMR globally
     new webpack.HotModuleReplacementPlugin(),
     // prints more readable module names in the browser console on HMR updates
-    new webpack.NamedModulesPlugin()
+    new webpack.NamedModulesPlugin(),
+    // prevent emitting assets with errors
+    new webpack.NoEmitOnErrorsPlugin()
   );
 }
 // end of plugin management
 
+// optionally live-reloadable entry points
+const entryPoints = function() {
+  const items = isProd
+    ? []
+    : ["webpack-hot-middleware/client?noInfo=true&reload=true"];
+  items.push(...arguments);
+  return items;
+};
+
+const postcssLoader = {
+  loader: "postcss-loader",
+  options: {
+    plugins: () => [require("autoprefixer")]
+  }
+};
+
 module.exports = {
   entry: {
-    app: "./src/index.js",
+    app: entryPoints("./src/index.js"),
     vendor: ["preact", "preact-router"]
   },
   output: {
@@ -80,14 +100,15 @@ module.exports = {
         loader: "babel-loader",
         options: babel
       },
+      { test: /\.yml$/, loader: "json-loader!yaml-loader" },
       {
         test: /\.scss$/,
         loader: isProd
           ? extractOtherCss.extract({
-              use: "css-loader?modules!postcss-loader!sass-loader"
+              use: ["css-loader?modules", postcssLoader, "sass-loader"]
             })
           : [
-              { loader: "style-loader" },
+              "style-loader",
               {
                 loader: "css-loader",
                 options: {
@@ -95,8 +116,8 @@ module.exports = {
                   localIdentName: "[path][name]__[local]--[hash:base64:5]"
                 }
               },
-              { loader: "postcss-loader" },
-              { loader: "sass-loader" }
+              postcssLoader,
+              "sass-loader"
             ],
         exclude: /shell.scss$/
       },
@@ -104,9 +125,16 @@ module.exports = {
         test: /shell.scss$/,
         loader: isProd
           ? extractShellCss.extract({
-              use: "css-loader!postcss-loader!sass-loader"
+              use: ["css-loader", postcssLoader, "sass-loader"]
             })
-          : "style-loader!css-loader!postcss-loader!sass-loader"
+          : ["style-loader", "css-loader", postcssLoader, "sass-loader"]
+      },
+      {
+        test: /\.svg$/,
+        loader: "svg-sprite-loader",
+        options: {
+          extract: true
+        }
       }
     ]
   },
@@ -114,17 +142,9 @@ module.exports = {
     alias: {
       src: path.resolve(__dirname, "./src"),
       config: path.resolve(__dirname, "./config")
-    }
+    },
+    symlinks: false
   },
   devtool: isProd ? "source-map" : "eval",
-  plugins: plugins,
-  devServer: {
-    publicPath: "/",
-    contentBase: out,
-    port: process.env.PORT || 3000,
-    historyApiFallback: true,
-    compress: isProd,
-    inline: !isProd,
-    hot: !isProd
-  }
+  plugins
 };

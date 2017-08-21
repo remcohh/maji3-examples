@@ -1,14 +1,16 @@
 import { h } from "preact";
-import Router from "preact-router";
+import { Router as PreactRouter } from "preact-router";
 
-const Greeter = ({ name }) => <p>Hello {name}!</p>;
+import { history } from "src/support/history";
+import { augmentRouter } from "src/support/pageTransitionSupport";
+import WelcomePage from "src/modules/welcome/containers/WelcomePage";
+import DetailPage from "src/modules/welcome/containers/DetailPage";
+
+const Router = augmentRouter(PreactRouter);
 
 export default () => (
-  <Router>
-    <Greeter path="/hello/:name" />
-    <div default>
-      <Greeter name="stranger" />
-      <a href="/hello/friend">Say hello to friend!</a>
-    </div>
+  <Router history={history}>
+    <DetailPage path="/detail" />
+    <WelcomePage default />
   </Router>
 );

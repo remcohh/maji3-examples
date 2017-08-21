@@ -9,31 +9,39 @@ RUN apt-get update \
           zlib1g zlib1g-dev \
           libcurl4-openssl-dev \
           libxslt-dev libxml2-dev \
+          xvfb \
+          locales \
           apt-transport-https \
-  && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+  && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/apt/*
 
-# install latest chrome
+# install java
+RUN echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/sources.list.d/backports.list \
+  && apt-get update \
+  && apt-get install -t jessie-backports -y openjdk-8-jre-headless ca-certificates-java \
+  && rm /etc/apt/sources.list.d/backports.list \
+  && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/apt/*
+
+# install chrome
 RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
   && echo "deb https://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
   && apt-get update \
-  && apt-get -y install google-chrome-unstable \
+  && apt-get -y install google-chrome-stable \
   && rm /etc/apt/sources.list.d/google-chrome.list \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
-ENV CHROME_BIN /usr/bin/google-chrome-unstable
+  && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/cache/apt/*
+ENV CHROME_BIN /usr/bin/google-chrome-stable
 
-ARG JENKINS_UID=999
-RUN (id ${JENKINS_UID} && userdel $(id -un ${JENKINS_UID}) || true) && adduser --disabled-password --gecos "" --uid ${JENKINS_UID} --gid 1 jenkins
+RUN DEBIAN_FRONTEND=noninteractive dpkg-reconfigure locales && \
+    locale-gen C.UTF-8 && \
+    /usr/sbin/update-locale LANG=C.UTF-8
+RUN echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen
 
-USER jenkins
-RUN curl -o- -L https://yarnpkg.com/install.sh | bash
-ENV PATH /home/jenkins/.yarn/bin:${PATH}
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
 
-ADD package.json /tmp
-ADD yarn.lock /tmp
+# for running e2e tests
+ENV CI true
+ENV DISPLAY :0
+# https://github.com/SeleniumHQ/docker-selenium/issues/87
+ENV DBUS_SESSION_BUS_ADDRESS /dev/null
 
-# silly workaround because ADD doesn't honor USER
-USER root
-RUN cd /tmp && chown jenkins package.json yarn.lock
-USER jenkins
-
-RUN cd /tmp && yarn install

@@ -1,4 +1,4 @@
-projectId = "buurkracht-mobile-yarn-test"
+projectId = "buurkracht-mobile"
 
 pipeline {
   agent {
@@ -16,13 +16,14 @@ pipeline {
   stages {
     stage("Setup") {
       steps {
-        sh "rm -rf node_modules && cp -R /tmp/node_modules ."
+        sh "rm -rf node_modules | true"
+        sh "bin/setup"
       }
     }
 
     stage("Tests") {
       steps {
-        sh "bin/ci"
+        sh "xvfb-run bin/ci"
         junit "reports/*.xml"
       }
     }
