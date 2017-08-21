@@ -1,4 +1,4 @@
-projectId = "buurkracht-mobile-yarn-test"
+projectId = "buurkracht-mobile"
 
 pipeline {
   agent {

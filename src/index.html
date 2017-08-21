@@ -10,6 +10,7 @@
     <meta name="apple-mobile-web-app-title" content="Buurkracht">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+    <script src="cordova.js"></script>
     <script type="text/javascript">
       if(window.navigator.standalone) {
         document.querySelector('html').className = 'ios-standalone';
@@ -22,8 +23,7 @@
     </style>
 <% } %>
   </head>
-  <body>
-    <div id="app"></div>
+  <body id="maji-app">
 <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
     <script src="<%= htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
 <% } %>
