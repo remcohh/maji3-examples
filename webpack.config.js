@@ -105,8 +105,8 @@ module.exports = {
         test: /\.scss$/,
         loader: isProd
           ? extractOtherCss.extract({
-              use: ["css-loader?modules", postcssLoader, "sass-loader"]
-            })
+          use: ["css-loader?modules", postcssLoader, "sass-loader"]
+        })
           : [
               "style-loader",
               {

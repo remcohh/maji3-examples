@@ -25,7 +25,8 @@
     "preact-redux": "^2.0.2",
     "preact-router": "^2.5.2",
     "raven-js": "^3.17.0",
-    "redux": "^3.7.2"
+    "redux": "^3.7.2",
+    "reselect": "^3.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.1",

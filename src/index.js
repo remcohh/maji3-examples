@@ -5,15 +5,18 @@ import { Provider } from "preact-redux";
 import FastClick from "fastclick";
 import "src/config/sentry";
 import store from "./store";
+import TodoPage from "./modules/todo/containers/TodoPage"
+//import App from "./containers/App";
 
 const renderApp = function() {
-  const App = require("./containers/App").default;
   const root = document.querySelector("#maji-app");
 
   root.innerHTML = "";
+
+
   render(
     <Provider store={store}>
-      <App />
+      <TodoPage />
     </Provider>,
     root
   );
